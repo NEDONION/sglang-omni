@@ -19,6 +19,9 @@ notes/
 │   ├── README.md              索引 + 状态
 │   ├── _TEMPLATE.md           新建时复制它
 │   └── 1889-*.md              第一个 PR
+├── runbooks/              【执行手册线】动手前的可执行方案
+│   ├── README.md              索引 + 状态
+│   └── 1888-*.md              Whisper 运行时画像
 └── 【研读线】代码设计与实现
     ├── architecture.md        01 · 整体架构与技术栈
     ├── modules.md             02 · 模块拆分与职责
@@ -51,7 +54,15 @@ notes/
 | --- | --- | --- | --- |
 | [#1889](./prs/1889-counting-inbox-claim-invariant.md) | #1680 | 🟡 待评审 | 给调度器的一条记账规则立个绊线，顺手实测复现了它描述的故障 |
 
-## 三、研读线
+## 三、执行手册线 · [runbooks/](./runbooks/README.md)
+
+目标：**动手前把方案写清楚**。需要租机器、跑实验的 issue，先写一份开机照着敲的手册，省下试错的机时。
+
+| 手册 | 关联 issue | 硬件 | 状态 |
+| --- | --- | --- | --- |
+| [Whisper 运行时画像](./runbooks/1888-whisper-profiling.md) | #1888 | Vast.ai RTX 4090 24G | 🟡 准备中 |
+
+## 四、研读线
 
 目标：**理解设计意图**。建议在上手线 01 之后按需切入。
 
@@ -65,7 +76,7 @@ notes/
 
 ---
 
-## 四、三条线怎么配合
+## 五、四条线怎么配合
 
 | 你现在想做什么 | 读哪儿 |
 | --- | --- |
@@ -74,6 +85,7 @@ notes/
 | 准备动手改代码，但不知道改哪一层 | [modules.md](./modules.md) → [core_flows.md](./core_flows.md) |
 | 定位一个 bug 在哪个阶段 | [core_flows.md](./core_flows.md) → [code_insights.md](./code_insights.md) |
 | 没有卡，想知道能干什么 | onboarding [04](./onboarding/04-no-gpu.md) → [05](./onboarding/05-first-task.md) |
+| 要租机器跑实验了 | [runbooks/](./runbooks/README.md) |
 | 准备提 PR 了 | onboarding [06](./onboarding/06-pull-request.md) |
 | PR 提完了，想留档 | [prs/_TEMPLATE.md](./prs/_TEMPLATE.md) |
 | 想看之前的 PR 怎么处理的 | [prs/README.md](./prs/README.md) |
