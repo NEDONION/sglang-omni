@@ -15,6 +15,10 @@ notes/
 │   ├── 05-first-task.md       找第一个任务
 │   ├── 06-pull-request.md     提交 PR
 │   └── 07-pitfalls.md         常见坑
+├── prs/                   【PR 记录线】我提的每个 PR 的前因后果
+│   ├── README.md              索引 + 状态
+│   ├── _TEMPLATE.md           新建时复制它
+│   └── 1889-*.md              第一个 PR
 └── 【研读线】代码设计与实现
     ├── architecture.md        01 · 整体架构与技术栈
     ├── modules.md             02 · 模块拆分与职责
@@ -39,7 +43,15 @@ notes/
 | 06 | [提交 PR](./onboarding/06-pull-request.md) | 六步流程、`run-ci` 标签、slash command、CODEOWNERS |
 | 07 | [常见坑](./onboarding/07-pitfalls.md) | 症状 → 解法速查 + 一页命令速查 |
 
-## 二、研读线
+## 二、PR 记录线 · [prs/](./prs/README.md)
+
+目标：**留档**。每提一个 PR 就写一份，记清为什么做、背景、怎么解决、结果如何。半年后回头能想起当时在解决什么。
+
+| PR | 关联 issue | 状态 | 一句话 |
+| --- | --- | --- | --- |
+| [#1889](./prs/1889-counting-inbox-claim-invariant.md) | #1680 | 🟡 待评审 | 给调度器的一条记账规则立个绊线，顺手实测复现了它描述的故障 |
+
+## 三、研读线
 
 目标：**理解设计意图**。建议在上手线 01 之后按需切入。
 
@@ -53,7 +65,7 @@ notes/
 
 ---
 
-## 三、两条线怎么配合
+## 四、三条线怎么配合
 
 | 你现在想做什么 | 读哪儿 |
 | --- | --- |
@@ -63,6 +75,8 @@ notes/
 | 定位一个 bug 在哪个阶段 | [core_flows.md](./core_flows.md) → [code_insights.md](./code_insights.md) |
 | 没有卡，想知道能干什么 | onboarding [04](./onboarding/04-no-gpu.md) → [05](./onboarding/05-first-task.md) |
 | 准备提 PR 了 | onboarding [06](./onboarding/06-pull-request.md) |
+| PR 提完了，想留档 | [prs/_TEMPLATE.md](./prs/_TEMPLATE.md) |
+| 想看之前的 PR 怎么处理的 | [prs/README.md](./prs/README.md) |
 | CI 红了 / 装不上 | onboarding [07](./onboarding/07-pitfalls.md) |
 
 ---
