@@ -342,6 +342,8 @@ def test_running_abort_survives_speculative_eviction() -> None:
 
 def test_dispatch_drains_claim_accounting() -> None:
     scheduler = ThreadedSimpleScheduler(lambda payload: payload, max_concurrency=2)
+    scheduler.enqueue(_request("aborted", "must-not-run"))
+    scheduler.abort("aborted")
 
     with _running(scheduler):
         for i in range(4):
