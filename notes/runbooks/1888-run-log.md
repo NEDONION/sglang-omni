@@ -222,4 +222,66 @@ py-spy dump --pid <server>
 | `notes/runbooks/1888-data/` | 小体积产物 272 K：扫描 JSON、环境指纹、Layer 1 汇总，随笔记一起版本管理 |
 | 远程 `/workspace/runs/20260902-0716/` | 原始位置，实例销毁即消失 |
 
+---
+
+## Layer 2 · 阶段拆解（改用内置 profiler）
+
+py-spy 走不通，改用仓库自带的请求级 profiler —— `--profile-events` 会在每档并发的正式轮次后
+**额外跑一轮带事件记录的 pass**，产出 `stage_breakdown`。走 HTTP 端点，**不需要 ptrace 特权**。
+
+```bash
+python -u -m benchmarks.eval.benchmark_asr_seedtts \
+  --port 8000 --model-path openai/whisper-large-v3 \
+  --concurrencies 1,8,32,64 --repeats 1 --warmup --max-samples 200 \
+  --profile-events --profile-urls http://127.0.0.1:8000 \
+  --profile-event-dir $RUN/layer2/events --output $RUN/layer2/profiled.json
+```
+
+### 各阶段平均耗时 (ms)
+
+| 阶段 | c=1 | c=8 | c=32 | c=64 |
+| --- | ---: | ---: | ---: | ---: |
+| **总计**（stage_input_received→stage_complete） | 95.84 | 251.22 | 722.03 | 1357.41 |
+| decode（prefill_end→stage_complete） | 58.82 | 186.46 | **581.00** | **580.12** |
+| prefill（prefill_start→prefill_end） | 30.72 | 32.08 | 32.85 | 33.55 |
+| request_build | 2.89 | 3.56 | 6.76 | 7.17 |
+| **排队等待**（queue_enter→prefill_start） | 2.21 | 8.18 | 45.53 | **649.08** |
+| build→queue 交接 | 0.34 | 5.54 | 22.77 | 32.17 |
+
+### 占「总计」比例 (%)
+
+| 阶段 | c=1 | c=8 | c=32 | c=64 |
+| --- | ---: | ---: | ---: | ---: |
+| decode | 61.4 | 74.2 | 80.5 | 42.7 |
+| prefill | 32.1 | 12.8 | 4.5 | 2.5 |
+| request_build | 3.0 | 1.4 | 0.9 | 0.5 |
+| **排队等待** | 2.3 | 3.3 | 6.3 | **47.8** |
+| build→queue 交接 | 0.4 | 2.2 | 3.2 | 2.4 |
+
+GPU 利用率（profiled pass 自测，与 nvidia-smi 采样吻合）：48.1 → 47.5 → 36.7 → 35.3 %
+
+### 三条结论
+
+**① decode 在并发 32 饱和。** `581.00` vs `580.12` ms —— c=32 与 c=64 的 decode 耗时几乎完全相同。
+批次在 32 就满，再加并发不进入计算。**证据：强。**
+
+**② 并发 64 时近一半延迟是纯排队。** 排队等待 45.53 → 649.08 ms，占比 6.3% → **47.8%**。
+这解释了 Layer 3 的「吞吐持平、延迟翻倍」—— 多出的 32 个请求在队列里干等。**证据：强。**
+
+**③ prefill 恒定不变。** 30.72 → 33.55 ms，并发翻 64 倍只涨 9%。
+Whisper 的 encoder 处理固定 30 秒窗口，单请求成本与并发无关；其占比从 32.1% 塌到 2.5%。**证据：强。**
+
+### ⚠️ 修正 Layer 1 的初步判定
+
+Layer 1 看到利用率随并发下降，我据方法论初判为「CPU / 调度瓶颈」。**阶段拆解否定了这个假设：**
+
+CPU 侧的 `request_build` + `build→queue 交接` 在 c=64 时合计只占 **2.9%**，而且**占比随并发是下降的**
+（3.4% → 2.9%）。不存在「CPU 开销随并发变重」的现象。
+
+真实机制是：请求在等 decode 槽位。GPU 利用率仅 35–48%，说明 Whisper large-v3 的 decode 步
+在 batch ≤32 时喂不饱 4090 —— 更像 launch / 带宽受限而非算力受限。
+
+**「为什么利用率低」这一条证据强度：弱。** 要 nsys kernel 时间线才能坐实，而 nsys 在本容器
+同样受权限限制。报告里应如实标注，不要写成已证实的结论。
+
 <!-- 后续进展往下追加 -->
