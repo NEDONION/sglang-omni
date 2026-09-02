@@ -16,6 +16,7 @@
 
 | 手册 | 关联 issue | 硬件 | 状态 |
 | --- | --- | --- | --- |
-| [Whisper 运行时画像](./1888-whisper-profiling.md) | [#1888](https://github.com/sgl-project/sglang-omni/issues/1888) | Vast.ai RTX 4090 24G | 🟡 准备中 |
+| [Whisper 运行时画像](./1888-whisper-profiling.md) | [#1888](https://github.com/sgl-project/sglang-omni/issues/1888) | Vast.ai RTX 4090 24G | 🟢 已完成 |
+| [dots.tts 运行时画像](./1882-dots-tts-profiling.md) | [#1882](https://github.com/sgl-project/sglang-omni/issues/1882) | Vast.ai A100 80G（**24G 放不下**） | 🟡 准备中 |
 
 图例：🟡 准备中 · 🔵 执行中 · 🟢 已完成 · 🔴 中止
