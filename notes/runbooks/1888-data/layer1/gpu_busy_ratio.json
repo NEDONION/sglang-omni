@@ -1,0 +1,41 @@
+{
+  "method": "nvidia-smi -lms 100 sampling during a 1-repeat warmed run",
+  "rows": [
+    {
+      "concurrency": 1,
+      "samples": 2245,
+      "util_mean": 48.4,
+      "util_median": 50.0,
+      "busy_ratio_pct": 96.8,
+      "share_above_50_pct": 41.4,
+      "power_mean_w": 141.5
+    },
+    {
+      "concurrency": 8,
+      "samples": 780,
+      "util_mean": 41.6,
+      "util_median": 44.0,
+      "busy_ratio_pct": 89.6,
+      "share_above_50_pct": 25.6,
+      "power_mean_w": 149.7
+    },
+    {
+      "concurrency": 32,
+      "samples": 521,
+      "util_mean": 41.8,
+      "util_median": 42.0,
+      "busy_ratio_pct": 86.4,
+      "share_above_50_pct": 39.3,
+      "power_mean_w": 163.1
+    },
+    {
+      "concurrency": 64,
+      "samples": 585,
+      "util_mean": 36.1,
+      "util_median": 41.0,
+      "busy_ratio_pct": 78.6,
+      "share_above_50_pct": 23.1,
+      "power_mean_w": 151.5
+    }
+  ]
+}
