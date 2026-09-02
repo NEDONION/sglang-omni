@@ -193,6 +193,23 @@ autotune** — worth knowing before planning a segmented rental, since a stop/st
 
 </details>
 
+### Raw artifacts
+
+Attached to this comment: the four summary JSONs (`seedtts_en_sweep.json`, `layer2/profiled.json`,
+`longform60.json`, `meanwhile.json`) and the Layer 1 `nvidia-smi` CSVs.
+
+Per #1798's Result-tracking rule, bulky artifacts stay local and are named rather than attached:
+the 21 per-request JSONL files under `raw/seedtts_en/` and `raw/longform60/`, and the 78 MB
+`serve.log` (mostly the 118 Inductor autotune rounds). They lived under `/workspace/runs/20260902-0716/`
+on the rented host, which has since been destroyed; a copy is retained locally. **No conclusion above
+rests on an artifact that is not attached here** — every number in the tables comes from the attached
+summary JSONs.
+
+This comment is the durable record for this run: #1888 is already a sub-issue of #1798, so no
+separate tracking sub-issue was filed.
+
+---
+
 <details><summary>Two notes for #1798 §1/§2 (per §3 item 9) — both general, not Whisper-specific</summary>
 
 1. **py-spy needs `CAP_SYS_PTRACE`, which stock containers do not grant.** §4's tools index gives

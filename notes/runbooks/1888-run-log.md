@@ -1,4 +1,4 @@
-# #1888 执行日志 · 第一次运行
+# [#1888](https://github.com/sgl-project/sglang-omni/issues/1888) 执行日志 · 第一次运行
 
 > 配套方案见 [1888-whisper-profiling.md](./1888-whisper-profiling.md)。
 > 这份是**实际跑的时候发生了什么**——含每一步的真实耗时、踩的坑、和当场量到的数字。
@@ -204,7 +204,7 @@ py-spy dump --pid <server>
 
 即使在容器里是 root 也不行 —— 缺的是 capability，不是 uid。
 
-**这是通用坑，符合 #1798 §3 第 9 条「回填进方法论」的条件**：方法论 §4 工具索引里直接给了 py-spy 命令，但没提它在标准 Docker/云容器里默认不可用。
+**这是通用坑，符合 [#1798](https://github.com/sgl-project/sglang-omni/issues/1798) §3 第 9 条「回填进方法论」的条件**：方法论 §4 工具索引里直接给了 py-spy 命令，但没提它在标准 Docker/云容器里默认不可用。
 
 绕过办法：
 1. 创建实例时加 `--cap-add SYS_PTRACE`（Vast 的 `create instance` 是否支持待验证）
@@ -363,7 +363,7 @@ CPU 侧的 `request_build` + `build→queue 交接` 在 c=64 时合计只占 **2
 | 4 A/B 验证 | ⏭️ **按方法论条件跳过** | Layer 2 未发现可疑开销源，无可 A/B 的候选 |
 | 5 功能回归 | ✅ | 两个长音频数据集，WER 全程稳定 |
 
-Layer 4 的跳过依据是 #1798 §3 第 6 条——它的前提是「对 Layer 2 找到的每个可疑开销源」。
+Layer 4 的跳过依据是 [#1798](https://github.com/sgl-project/sglang-omni/issues/1798) §3 第 6 条——它的前提是「对 Layer 2 找到的每个可疑开销源」。
 **报告里必须写明这是有条件的主动跳过，不是漏做。**
 
 ### 报告草稿

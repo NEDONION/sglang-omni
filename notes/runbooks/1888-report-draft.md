@@ -1,6 +1,6 @@
 # Whisper ASR runtime profile — first pass on a single RTX 4090
 
-First-pass Layer 1–5 profile for `whisper_asr` following the methodology in #1798.
+First-pass Layer 1–5 profile for `whisper_asr` following the methodology in [#1798](https://github.com/sgl-project/sglang-omni/issues/1798).
 Run on consumer hardware, which is the gap this fills: every Whisper number currently
 in `docs/cookbook/whisper_asr.md` was measured on an H200.
 
@@ -48,7 +48,7 @@ python -u -m benchmarks.eval.benchmark_asr_seedtts \
   --sample-util --util-gpu-ids 0 --util-interval 0.5 --fingerprint \
   --save-raw-dir raw/seedtts_en --output seedtts_en_sweep.json
 
-# Layer 1 — GPU busy ratio (nvidia-smi sampling, method 2 in #1798 §2)
+# Layer 1 — GPU busy ratio (nvidia-smi sampling, method 2 in [#1798](https://github.com/sgl-project/sglang-omni/issues/1798) §2)
 nvidia-smi --query-gpu=utilization.gpu,utilization.memory,power.draw \
   --format=csv,noheader,nounits -lms 100 > util_c$C.csv &
 python -u -m benchmarks.eval.benchmark_asr_seedtts \
@@ -79,7 +79,7 @@ python -u -m benchmarks.eval.benchmark_asr_longform \
 ## Layer 1 — GPU busy ratio
 
 **Method:** `nvidia-smi` sampling at 100 ms across a warmed 1-repeat pass
-(#1798 §2 Layer 1, method 2). `--sample-util` reports memory, power and host CPU but
+([#1798](https://github.com/sgl-project/sglang-omni/issues/1798) §2 Layer 1, method 2). `--sample-util` reports memory, power and host CPU but
 **not** GPU utilization, so this had to be measured separately.
 
 | conc | samples | util mean | util median | busy ratio (>0 %) | share >50 % | power mean |
@@ -93,7 +93,7 @@ The profiled passes report `gpu_util_percent` independently and agree: 48.1 / 47
 36.7 / 35.3 %. Peak power was 192.5 W against a 450 W cap.
 
 **Finding:** utilization is far from saturation at every level, and *falls* as concurrency
-rises. #1798 flags this exact shape as possibly host-bound rather than as headroom.
+rises. [#1798](https://github.com/sgl-project/sglang-omni/issues/1798) flags this exact shape as possibly host-bound rather than as headroom.
 Layer 2 was run to separate the two — and rules host-bound out (below). **Evidence: strong**
 for the measurement, and two independent methods agree.
 
@@ -140,7 +140,7 @@ As a share of total:
 4. **Host-side orchestration is not the bottleneck — negative result, stated explicitly.**
    `request_build` plus the build→queue handoff account for 2.9 % at c=64, and their share
    *falls* as concurrency rises (3.4 % → 2.9 %). The dropping busy ratio in Layer 1 is
-   therefore **not** the host-bound signature #1798 warns about. **Evidence: strong.**
+   therefore **not** the host-bound signature [#1798](https://github.com/sgl-project/sglang-omni/issues/1798) warns about. **Evidence: strong.**
 
 **What is left unexplained:** why utilization sits at 35–48 % when decode is the dominant
 stage. The stage breakdown shows *where* time goes, not whether the decode kernels
@@ -223,7 +223,7 @@ Also satisfies the long-form coverage in this issue's scope. Both datasets compl
    | longlibriheavy-60 | **8** | **regresses** (7.57 → 7.03), latency 4× |
    | meanwhile | still climbing | slight gain (4.54 → 4.91) |
 
-   #1798 warns that the trend can flip entirely between workload shapes. This run confirms
+   [#1798](https://github.com/sgl-project/sglang-omni/issues/1798) warns that the trend can flip entirely between workload shapes. This run confirms
    it: a "concurrency 32 is optimal" conclusion drawn from short-form alone would
    noticeably overload longlibriheavy-60.
 3. **RTFx is higher on long-form** (474.6 vs 225.8) because longer audio amortizes the
@@ -233,7 +233,7 @@ Also satisfies the long-form coverage in this issue's scope. Both datasets compl
 
 ## Layer 4 — not run, and why
 
-#1798 §3 item 6 conditions Layer 4 on "each suspected overhead source found in Layer 2".
+[#1798](https://github.com/sgl-project/sglang-omni/issues/1798) §3 item 6 conditions Layer 4 on "each suspected overhead source found in Layer 2".
 Layer 2 found none: host-side stages sit at 2.9 % and their share falls with concurrency.
 There is no single-variable knob to A/B without first establishing *why* decode leaves the
 GPU at 35–48 %, which needs the kernel timeline this environment could not capture.
@@ -276,7 +276,7 @@ planning a segmented rental, since a stop/start pays it again.
 
 ---
 
-## Two items for #1798 §1/§2 (per §3 item 9)
+## Two items for [#1798](https://github.com/sgl-project/sglang-omni/issues/1798) §1/§2 (per §3 item 9)
 
 Both are general, not Whisper-specific:
 

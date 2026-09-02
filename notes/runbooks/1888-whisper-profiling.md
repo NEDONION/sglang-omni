@@ -16,7 +16,7 @@
 
 ## 一、先明确「做完」是什么样
 
-#1888 的验收标准只有两条，但 #1798 §3 把它展开成九步：
+[#1888](https://github.com/sgl-project/sglang-omni/issues/1888) 的验收标准只有两条，但 [#1798](https://github.com/sgl-project/sglang-omni/issues/1798) §3 把它展开成九步：
 
 | # | 做什么 | 必做 |
 | --- | --- | --- |
@@ -28,7 +28,7 @@
 | 6 | **Layer 4** — 对 Layer 2 的发现做单变量 A/B | ⚠️ 条件 |
 | 7 | **Layer 5** — 长序列数据集上的功能回归 | ✅ |
 | 8 | 写报告：按层组织，标注证据强度，附发现—证据—建议表 | ✅ |
-| 9 | 把通用的坑回填进 #1798 的 §1/§2 | 加分 |
+| 9 | 把通用的坑回填进 [#1798](https://github.com/sgl-project/sglang-omni/issues/1798) 的 §1/§2 | 加分 |
 
 两条容易读漏的：
 
@@ -106,7 +106,7 @@ vastai search offers 'gpu_name=RTX_4090 num_gpus=1 cuda_vers>=13.0 \
   disk_space>=200 reliability>0.985 rentable=true' -o 'dph'
 ```
 
-- **CUDA ≥ 13 是硬指标**：项目钉了 `flashinfer[cu13]`、`nixl-cu13`、`mooncake-transfer-engine-cuda13`，`pyproject.toml` 明确写着通用的 cu12 wheel 在 cu130 上会挂。已知能跑通的环境：driver 580.159.03 / CUDA 13.0（来自 issue #1697 的报告）
+- **CUDA ≥ 13 是硬指标**：项目钉了 `flashinfer[cu13]`、`nixl-cu13`、`mooncake-transfer-engine-cuda13`，`pyproject.toml` 明确写着通用的 cu12 wheel 在 cu130 上会挂。已知能跑通的环境：driver 580.159.03 / CUDA 13.0（来自 issue [#1697](https://github.com/sgl-project/sglang-omni/issues/1697) 的报告）
 - **选 on-demand，不要 bid**：竞价实例被抢占，正在跑的那轮数据就废了
 - **磁盘 ≥200G**，但**实际只申请 ~120G**（见下方存储费）
 
@@ -186,7 +186,7 @@ rsync -avz vast-gpu:/workspace/sglang-omni/runs/ ./profiling-runs/
 
 ## 五、Phase 0 — 前置检查
 
-#1798 §1 的四条，一条别跳。这些输出直接构成报告的 Environment 段。
+[#1798](https://github.com/sgl-project/sglang-omni/issues/1798) §1 的四条，一条别跳。这些输出直接构成报告的 Environment 段。
 
 ```bash
 cd /workspace/sglang-omni
@@ -379,7 +379,7 @@ vastai destroy instance <id>   # 彻底销毁，停止所有计费
 
 合计 **4–5.5 小时 ≈ $1.5–2**。
 
-### 各任务耗时（从 #1340 的 H100 实测推算，4090 约慢 2.5–3 倍）
+### 各任务耗时（从 [#1340](https://github.com/sgl-project/sglang-omni/issues/1340) 的 H100 实测推算，4090 约慢 2.5–3 倍）
 
 | 任务 | H100 实测 | 4090 估算 |
 | --- | --- | --- |
@@ -401,7 +401,7 @@ vastai destroy instance <id>   # 彻底销毁，停止所有计费
 
 ## 十二、报告结构
 
-交付物是**贴到 #1888 的一条评论**：
+交付物是**贴到 [#1888](https://github.com/sgl-project/sglang-omni/issues/1888) 的一条评论**：
 
 ```markdown
 ## Environment
@@ -436,4 +436,4 @@ vastai destroy instance <id>   # 彻底销毁，停止所有计费
 | 先读已有文档 | `docs/cookbook/whisper_asr.md` 的 Benchmark Results 有 W-PR1 / W-PR2 / async-decode 三组 H200 数据。**开机前在本地读完**，§3 第 3 条明确要求先读，别重复造轮子 |
 | 先小后大 | 任何命令第一次跑都加 `--max-samples 20` |
 | 环境优先 | Phase 0–2 验证环境能不能通。**装不通就换机器，别硬扛** |
-| 先占坑再花钱 | **动手前去 #1888 留言认领。** 这个仓库很卷，而且要先看评论区——有过写完才发现别人早说要做的教训 |
+| 先占坑再花钱 | **动手前去 [#1888](https://github.com/sgl-project/sglang-omni/issues/1888) 留言认领。** 这个仓库很卷，而且要先看评论区——有过写完才发现别人早说要做的教训 |
