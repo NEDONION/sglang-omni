@@ -378,4 +378,70 @@ Layer 4 的跳过依据是 [#1798](https://github.com/sgl-project/sglang-omni/is
 1. py-spy 需要 `CAP_SYS_PTRACE`，标准容器不给 —— §4 工具索引给了命令但没写前提
 2. `--sample-util` 不产出 GPU 利用率 —— 从参数名容易误以为有
 
+---
+
+## 复盘：两处发出去之后才发现不准的地方
+
+报告发出后重读留存的 `serve.log`，发现两处措辞不准，已发[更正评论](https://github.com/sgl-project/sglang-omni/issues/1888#issuecomment-5514094275)。
+
+### 一、冷启动的归因错了
+
+原文写「冷启动由 118 轮 Inductor autotune 主导」。日志里的实际分段：
+
+```text
+07:21:42.430  Init torch distributed begin
+07:21:42.507  Init torch distributed end            elapsed=0.08 s
+07:21:42.510  Load weight begin
+07:21:44.977  Load weight end                       elapsed=2.39 s
+07:21:45.259  Capture target decode CUDA graph begin
+07:31:07.958  Capture target decode CUDA graph end  elapsed=562.70 s
+07:31:11.460  Process asr ready
+```
+
+**总计 569.03 s，其中 CUDA Graph 捕获 562.70 s，占 98.9%。** autotune 是捕获过程**内部**
+每个桶各跑一遍，不是与之并列的独立阶段。权重只有 3 GB，加载 2.39 s，读盘不是瓶颈。
+
+日志里还有一条原报告没提：本轮 **prefill CUDA graph 是禁用的**。
+
+### 二、把测量结果和未验证的推断混在了一句话里
+
+Finding 3 写的是「decode 批次在并发 32 已满」。**测量本身没问题**（581.00 对 580.12 ms），
+但这句话暗示存在一个已知的容量上限，而我从没查过是什么设定了它。
+
+去查的时候差点犯第二次错。sglang 按显存分档设 decode CUDA Graph 的批次上限：
+
+```python
+elif gpu_mem < 35 * 1024:          # A10、4090、5090
+    if self.tp_size < 4:
+        decode_cuda_graph_config.max_bs = 24
+elif gpu_mem < 90 * 1024:          # H100、A100
+    if self.tp_size < 4:
+        decode_cuda_graph_config.max_bs = 256
+```
+
+24 GB 的 4090、tp=1 落在 24 —— 和实测拐点 32 接近到足以让人相信。**但日志否定了它：**
+
+```text
+Capture target decode CUDA graph begin. backend=full, num_tokens_per_req=1,
+bs=[1, 2, 4, 8, 12, 16, 24, 32, 40, 48, 56, 64], avail mem=2.96 GB
+```
+
+桶一直到 64。omni 侧把 `max_running_requests`（64）作为显式覆盖传了下去，
+sglang 的分档默认值根本没生效 —— `server_args_builder.py` 里有
+`"cuda_graph_max_bs": "cuda_graph_max_bs_decode"` 的映射，`bootstrap.py` 只读解析后的值。
+
+**收获是把「图容量」这个候选排除掉了**，这条本身有价值。剩下的候选：捕获后可用显存
+只剩 2.61 GB，KV 池容量可能才是约束；也可能是调度器准入。都没测。
+
+### 教训：读配置要读完整条解析链
+
+方法论 §2 Layer 4 说「启动时一次算定的配置问题，读代码就能定论，不必真起服务」。
+这句话是对的，**但服务真正用的值是解析链上最后一个写入者**。上层传了显式覆盖，
+下层的分档默认就是死代码。
+
+只读默认值给出了一个 24 —— 和观测值接近到足以让人信服，而且是错的。
+
+**便宜的兜底：不管代码怎么写，先 grep 服务日志里解析后的实际值。**
+sglang 启动时会打印捕获的桶列表，一行就能定论。这条已作为第三条 note 提给 #1798。
+
 <!-- 后续进展往下追加 -->
